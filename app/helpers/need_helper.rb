@@ -52,7 +52,7 @@ module NeedHelper
     elsif number >= 10000
       "%.3g\k" % (number.to_f / 1000)
     else
-      number.to_s
+      number_with_delimiter(number)
     end
   end
 
