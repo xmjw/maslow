@@ -85,14 +85,16 @@ class NeedHelperTest < ActiveSupport::TestCase
   end
 
   context "format_friendly_integer" do
-    should "return a number under 1000 in its original form" do
+    should "return a number under 10000 in its original form" do
       assert_equal "999", format_friendly_integer(999)
+      assert_equal "1500", format_friendly_integer(1500)
+      assert_equal "2837", format_friendly_integer(2837)
+      assert_equal "9999", format_friendly_integer(9999)
     end
 
-    should "return numbers above 1000 using 'k' and up to three significant figures" do
-      assert_equal "1k", format_friendly_integer(1000)
-      assert_equal "1.5k", format_friendly_integer(1500)
-      assert_equal "1.57k", format_friendly_integer(1567)
+    should "return numbers above 10000 using 'k' and up to three significant figures" do
+      assert_equal "10k", format_friendly_integer(10000)
+      assert_equal "15k", format_friendly_integer(15000)
       assert_equal "25.3k", format_friendly_integer(25336)
       assert_equal "720k", format_friendly_integer(720123)
     end
