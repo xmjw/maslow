@@ -63,7 +63,7 @@ class Need
 
   # fields which should not be updated through mass-assignment.
   # this is equivalent to using ActiveModel's attr_protected
-  PROTECTED_FIELDS = ["in_scope", "duplicate_of", "out_of_scope_reason"]
+  PROTECTED_FIELDS = ["in_scope", "duplicate_of", "out_of_scope_reason", "status", "validation_conditions", "reasons_why_invalid", "other_reasons_why_invalid"]
 
   # fields which we should create read and write accessors for
   # and which we should send back to the Need API

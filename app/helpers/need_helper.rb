@@ -86,8 +86,8 @@ module NeedHelper
 
   def format_decision_made(need)
     decision = []
-    decision << "Out of scope" if need.in_scope == false
-    decision << "Duplicate" if need.duplicate?
+    decision << "Not valid (Out of scope)" if need.in_scope == false
+    decision << "Closed (duplicate)" if need.duplicate?
     decision.join(", ")
   end
 

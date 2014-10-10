@@ -12,3 +12,11 @@
 //
 //= require chosen-jquery
 //= require_tree .
+
+$(function(){
+  $('input.new-status').change(function(){
+    var value = $(this).val();
+    $('.optional-question').hide();
+    $('.' + value).show();
+  });
+});
