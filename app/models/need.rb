@@ -87,13 +87,11 @@ class Need
     validates_numericality_of field, only_integer: true, allow_blank: true, greater_than_or_equal_to: 0
   end
 
-  # Retrieve a list of needs from the Need API
+  # Retrieve a list of needs from the Publishing API
   #
-  # The parameters are the same as passed through to the Need API: as of
-  # 2014-03-12, they are `organisation_id`, `page` and `q`.
   def self.list(options = {})
-    need_response = Maslow.need_api.needs(options)
-
+    options = default_options unless options.present?
+    need_response = Maslow.publishing_api_v2.get_content_items(options)
     need_objects = need_response["results"].map { |need_hash| self.new(need_hash, true) }
     PaginatedList.new(need_objects, need_response)
   end
@@ -303,5 +301,17 @@ private
     %w(legislation other_evidence).each do |field|
       attrs[field].sub!(/\A\n/, "") if attrs[field].present?
     end
+  end
+
+  def self.default_options
+    {
+      document_type: 'need',
+      page: 1,
+      per_page: 50,
+      publishing_app: 'need-api',
+      fields: ['content_id', 'need_ids', 'details'],
+      locale: 'en',
+      order: '-public_updated_at'
+    }
   end
 end
