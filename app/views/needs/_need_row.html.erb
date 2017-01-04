@@ -8,6 +8,7 @@
       </button>
     <% end %>
   </td>
+  <td><%= p need %></td>
   <td><%= link_to need.id, need_path(need.id) %></td>
   <td><%= link_to format_need_goal(need.goal), need_path(need.id) %></td>
   <td>
@@ -17,6 +18,8 @@
     <% if need.applies_to_all_organisations %>
       <span class="all-organisations">Applies to all organisations</span>
     <% else %>
+      <%= "AAAAAAA" %>
+      <%= need.organisations %>
       <% if need.organisations.any? %>
         <%= need.organisations.map {|o| o["name"] }.join(", ") %>
       <% end %>

@@ -329,6 +329,7 @@ class NeedTest < ActiveSupport::TestCase
   def need_attributes_1
     {
       "content_id"=>"0001c0c6-2dd3-4b56-87f1-815efe32c155",
+      "applies_to_all_organisations"=>true,
       "need_id" => 100523,
       "details"=>{
         "benefit"=>"I can make sure I'm getting what I'm entitled to",
@@ -341,6 +342,7 @@ class NeedTest < ActiveSupport::TestCase
   def need_attributes_2
     {
       "content_id"=>"c867e5f7-2d68-42ad-bedb-20638b3bf58e",
+      "applies_to_all_organisations"=>true,
       "need_id" => 100522,
       "details"=>{
         "benefit"=>"I can improve their services or stop them from operating",
@@ -353,6 +355,7 @@ class NeedTest < ActiveSupport::TestCase
   def need_attributes_3
     {
       "content_id"=>"0925fd2b-6b59-4120-a849-96ab19b9c7df",
+      "applies_to_all_organisations"=>true,
       "need_id" => 100521,
       "details"=>{
         "role"=>"citizen",

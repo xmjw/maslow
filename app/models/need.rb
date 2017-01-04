@@ -58,12 +58,12 @@ class Need
   ]
 
   NUMERIC_FIELDS = %w(yearly_user_contacts yearly_site_views yearly_need_views yearly_searches)
-  MASS_ASSIGNABLE_FIELDS = %w(role goal benefit organisation_ids impact justifications met_when
+  MASS_ASSIGNABLE_FIELDS = %w(id  status applies_to_all_organisations role goal benefit organisation_ids impact justifications met_when
                               other_evidence legislation) + NUMERIC_FIELDS
 
   # fields which should not be updated through mass-assignment.
   # this is equivalent to using ActiveModel's attr_protected
-  PROTECTED_FIELDS = %w(duplicate_of status)
+  PROTECTED_FIELDS = %w(duplicate_of)
 
   # fields which we should create read and write accessors for
   # and which we should send back to the Need API
@@ -71,7 +71,7 @@ class Need
 
   # non-writable fields returned from the API which we want to make accessible
   # but which we don't want to send back to the Need API
-  READ_ONLY_FIELDS = %w(id revisions organisations applies_to_all_organisations)
+  READ_ONLY_FIELDS = %w(revisions organisations)
 
   attr_accessor *WRITABLE_FIELDS
   attr_reader *READ_ONLY_FIELDS
@@ -90,10 +90,10 @@ class Need
   # Retrieve a list of needs from the Publishing API
   #
   def self.list(options = {})
-    options = default_options unless options.present?
-    need_response = Maslow.publishing_api_v2.get_content_items(options)
-    need_objects = need_response["results"].map { |need_hash| self.new(need_hash, true) }
-    PaginatedList.new(need_objects, need_response)
+    options = default_options.merge(options)
+    response = Maslow.publishing_api_v2.get_content_items(options)
+    need_objects = build_needs(response["results"])
+    PaginatedList.new(need_objects, response)
   end
 
   # Retrieve a list of needs matching an array of ids
@@ -152,8 +152,10 @@ class Need
     strip_newline_from_textareas(attrs)
 
     unless (attrs.keys - MASS_ASSIGNABLE_FIELDS).empty?
+      p (attrs.keys - MASS_ASSIGNABLE_FIELDS)
       raise(ArgumentError, "Unrecognised attributes present in: #{attrs.keys}")
     end
+
     attrs.keys.each do |f|
       send("#{f}=", attrs[f])
     end
@@ -238,6 +240,25 @@ class Need
   end
 
 private
+
+  def self.build_needs(response)
+    needs = []
+    response.each do |need|
+      need_status = Need.map_to_status(need["publication_state"])
+      needs << Need.new(
+        {
+          "id" => need["need_ids"][0],
+          "applies_to_all_organisations" => need["applies_to_all_organisations"],
+          "benefit" => need["details"]["benefit"],
+          "goal" => need["details"]["goal"],
+          "role" => need["details"]["role"],
+          "status" => need_status
+        }
+      )
+    end
+    needs
+  end
+
   def author_atts(author)
     {
       "name" => author.name,
@@ -271,6 +292,7 @@ private
     # this app understands to the fields it expects from clients is fine, but
     # we don't want to couple that with the fields we can use in the API.
     original_attrs.slice(*MASS_ASSIGNABLE_FIELDS)
+    binding.pry
   end
 
   def prepare_organisations(organisations)
@@ -309,9 +331,22 @@ private
       page: 1,
       per_page: 50,
       publishing_app: 'need-api',
-      fields: ['content_id', 'need_ids', 'details'],
+      fields: ['content_id', 'need_ids', 'details', 'publication_state'],
       locale: 'en',
       order: '-public_updated_at'
     }
+  end
+
+  def self.map_to_status(state)
+    case state
+    when "published"
+      "Valid"
+    when "draft"
+      "Proposed"
+    when "unpublished"
+      "Duplicate"
+    else
+      "Status not recognised: #{state}"
+    end
   end
 end
